@@ -1,0 +1,75 @@
+[1.929s] Invoking command in '/home/zang/ros2/ros2_info/src/ros2_fastfetch': PYTHONPATH=/home/zang/ros2/ros2_info/build/ros2_info/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/zang/ros2/ros2_info/install/ros2_info/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/ros2_info build --build-base /home/zang/ros2/ros2_info/build/ros2_info/build install --record /home/zang/ros2/ros2_info/build/ros2_info/install.log --single-version-externally-managed
+[2.712s] running egg_info
+[2.772s] writing ../../build/ros2_info/ros2_info.egg-info/PKG-INFO
+[2.773s] writing dependency_links to ../../build/ros2_info/ros2_info.egg-info/dependency_links.txt
+[2.773s] writing entry points to ../../build/ros2_info/ros2_info.egg-info/entry_points.txt
+[2.773s] writing requirements to ../../build/ros2_info/ros2_info.egg-info/requires.txt
+[2.774s] writing top-level names to ../../build/ros2_info/ros2_info.egg-info/top_level.txt
+[2.895s] reading manifest file '../../build/ros2_info/ros2_info.egg-info/SOURCES.txt'
+[2.899s] writing manifest file '../../build/ros2_info/ros2_info.egg-info/SOURCES.txt'
+[2.899s] running build
+[2.900s] running build_py
+[2.900s] copying fetch_info/web.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info
+[2.901s] copying fetch_info/__init__.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info
+[2.901s] copying fetch_info/cli.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info
+[2.902s] copying fetch_info/collector/__init__.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/collector
+[2.902s] copying fetch_info/collector/workspace.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/collector
+[2.903s] copying fetch_info/collector/ros2.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/collector
+[2.904s] copying fetch_info/display/themes.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/display
+[2.904s] copying fetch_info/display/__init__.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/display
+[2.905s] copying fetch_info/display/panels.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/display
+[2.905s] copying fetch_info/display/logo.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/display
+[2.908s] /home/zang/.local/lib/python3.12/site-packages/setuptools/command/build_py.py:215: _Warning: Package 'fetch_info.templates' is absent from the `packages` configuration.
+[2.908s] !!
+[2.908s] 
+[2.909s]         ********************************************************************************
+[2.909s]         ############################
+[2.909s]         # Package would be ignored #
+[2.910s]         ############################
+[2.910s]         Python recognizes 'fetch_info.templates' as an importable package[^1],
+[2.910s]         but it is absent from setuptools' `packages` configuration.
+[2.910s] 
+[2.910s]         This leads to an ambiguous overall configuration. If you want to distribute this
+[2.911s]         package, please make sure that 'fetch_info.templates' is explicitly added
+[2.911s]         to the `packages` configuration field.
+[2.911s] 
+[2.911s]         Alternatively, you can also rely on setuptools' discovery methods
+[2.911s]         (for example by using `find_namespace_packages(...)`/`find_namespace:`
+[2.911s]         instead of `find_packages(...)`/`find:`).
+[2.912s] 
+[2.912s]         You can read more about "package discovery" on setuptools documentation page:
+[2.912s] 
+[2.912s]         - https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
+[2.912s] 
+[2.912s]         If you don't want 'fetch_info.templates' to be distributed and are
+[2.913s]         already explicitly excluding 'fetch_info.templates' via
+[2.913s]         `find_namespace_packages(...)/find_namespace` or `find_packages(...)/find`,
+[2.913s]         you can try to use `exclude_package_data`, or `include-package-data=False` in
+[2.913s]         combination with a more fine grained `package-data` configuration.
+[2.913s] 
+[2.914s]         You can read more about "package data files" on setuptools documentation page:
+[2.914s] 
+[2.914s]         - https://setuptools.pypa.io/en/latest/userguide/datafiles.html
+[2.914s] 
+[2.914s] 
+[2.915s]         [^1]: For Python, any directory (with suitable naming) can be imported,
+[2.915s]               even if it does not contain any `.py` files.
+[2.915s]               On the other hand, currently there is no concept of package data
+[2.916s]               directory, all directories are treated like packages.
+[2.916s]         ********************************************************************************
+[2.916s] 
+[2.916s] !!
+[2.916s]   check.warn(importable)
+[2.916s] copying fetch_info/templates/index.html -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/templates
+[2.917s] running install
+[2.936s] running install_lib
+[2.999s] copying /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/templates/index.html -> /home/zang/ros2/ros2_info/install/ros2_info/lib/python3.12/site-packages/fetch_info/templates
+[3.000s] copying /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/display/logo.py -> /home/zang/ros2/ros2_info/install/ros2_info/lib/python3.12/site-packages/fetch_info/display
+[3.002s] byte-compiling /home/zang/ros2/ros2_info/install/ros2_info/lib/python3.12/site-packages/fetch_info/display/logo.py to logo.cpython-312.pyc
+[3.004s] running install_egg_info
+[3.061s] removing '/home/zang/ros2/ros2_info/install/ros2_info/lib/python3.12/site-packages/ros2_info-1.0.0-py3.12.egg-info' (and everything under it)
+[3.061s] Copying ../../build/ros2_info/ros2_info.egg-info to /home/zang/ros2/ros2_info/install/ros2_info/lib/python3.12/site-packages/ros2_info-1.0.0-py3.12.egg-info
+[3.063s] running install_scripts
+[3.177s] Installing ros2_info script to /home/zang/ros2/ros2_info/install/ros2_info/lib/ros2_info
+[3.179s] writing list of installed files to '/home/zang/ros2/ros2_info/build/ros2_info/install.log'
+[3.242s] Invoked command in '/home/zang/ros2/ros2_info/src/ros2_fastfetch' returned '0': PYTHONPATH=/home/zang/ros2/ros2_info/build/ros2_info/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/zang/ros2/ros2_info/install/ros2_info/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/ros2_info build --build-base /home/zang/ros2/ros2_info/build/ros2_info/build install --record /home/zang/ros2/ros2_info/build/ros2_info/install.log --single-version-externally-managed

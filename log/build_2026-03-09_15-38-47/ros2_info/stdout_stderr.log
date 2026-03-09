@@ -1,0 +1,71 @@
+running egg_info
+writing ../../build/ros2_info/ros2_info.egg-info/PKG-INFO
+writing dependency_links to ../../build/ros2_info/ros2_info.egg-info/dependency_links.txt
+writing entry points to ../../build/ros2_info/ros2_info.egg-info/entry_points.txt
+writing requirements to ../../build/ros2_info/ros2_info.egg-info/requires.txt
+writing top-level names to ../../build/ros2_info/ros2_info.egg-info/top_level.txt
+reading manifest file '../../build/ros2_info/ros2_info.egg-info/SOURCES.txt'
+writing manifest file '../../build/ros2_info/ros2_info.egg-info/SOURCES.txt'
+running build
+running build_py
+copying fetch_info/web.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info
+copying fetch_info/__init__.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info
+copying fetch_info/cli.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info
+copying fetch_info/collector/__init__.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/collector
+copying fetch_info/collector/workspace.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/collector
+copying fetch_info/collector/ros2.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/collector
+copying fetch_info/display/themes.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/display
+copying fetch_info/display/__init__.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/display
+copying fetch_info/display/panels.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/display
+copying fetch_info/display/logo.py -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/display
+/home/zang/.local/lib/python3.12/site-packages/setuptools/command/build_py.py:215: _Warning: Package 'fetch_info.templates' is absent from the `packages` configuration.
+!!
+
+        ********************************************************************************
+        ############################
+        # Package would be ignored #
+        ############################
+        Python recognizes 'fetch_info.templates' as an importable package[^1],
+        but it is absent from setuptools' `packages` configuration.
+
+        This leads to an ambiguous overall configuration. If you want to distribute this
+        package, please make sure that 'fetch_info.templates' is explicitly added
+        to the `packages` configuration field.
+
+        Alternatively, you can also rely on setuptools' discovery methods
+        (for example by using `find_namespace_packages(...)`/`find_namespace:`
+        instead of `find_packages(...)`/`find:`).
+
+        You can read more about "package discovery" on setuptools documentation page:
+
+        - https://setuptools.pypa.io/en/latest/userguide/package_discovery.html
+
+        If you don't want 'fetch_info.templates' to be distributed and are
+        already explicitly excluding 'fetch_info.templates' via
+        `find_namespace_packages(...)/find_namespace` or `find_packages(...)/find`,
+        you can try to use `exclude_package_data`, or `include-package-data=False` in
+        combination with a more fine grained `package-data` configuration.
+
+        You can read more about "package data files" on setuptools documentation page:
+
+        - https://setuptools.pypa.io/en/latest/userguide/datafiles.html
+
+
+        [^1]: For Python, any directory (with suitable naming) can be imported,
+              even if it does not contain any `.py` files.
+              On the other hand, currently there is no concept of package data
+              directory, all directories are treated like packages.
+        ********************************************************************************
+
+!!
+  check.warn(importable)
+copying fetch_info/templates/index.html -> /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/templates
+running install
+running install_lib
+copying /home/zang/ros2/ros2_info/build/ros2_info/build/lib/fetch_info/templates/index.html -> /home/zang/ros2/ros2_info/install/ros2_info/lib/python3.12/site-packages/fetch_info/templates
+running install_egg_info
+removing '/home/zang/ros2/ros2_info/install/ros2_info/lib/python3.12/site-packages/ros2_info-1.0.0-py3.12.egg-info' (and everything under it)
+Copying ../../build/ros2_info/ros2_info.egg-info to /home/zang/ros2/ros2_info/install/ros2_info/lib/python3.12/site-packages/ros2_info-1.0.0-py3.12.egg-info
+running install_scripts
+Installing ros2_info script to /home/zang/ros2/ros2_info/install/ros2_info/lib/ros2_info
+writing list of installed files to '/home/zang/ros2/ros2_info/build/ros2_info/install.log'

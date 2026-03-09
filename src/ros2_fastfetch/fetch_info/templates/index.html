@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ROS2 Info — Dashboard</title>
+    <meta name="description" content="ROS2 system information dashboard with live runtime monitoring and blog feed">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            /* Fluid Glass Theme */
+            --bg-glass: rgba(15, 23, 42, 0.6);
+            --bg-glass-hover: rgba(30, 41, 59, 0.7);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.2);
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-dim: #64748b;
+            
+            --ok: #34d399;
+            --warn: #fbbf24;
+            --error: #f87171;
+            --highlight: #60a5fa;
+
+            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --blur: blur(24px);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.5;
+            background-color: #020617;
+        }
+
+        /* ── Animated Mesh Gradient Background ── */
+        .mesh-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            overflow: hidden;
+            background: #020617;
+        }
+
+        .mesh-blob {
+            position: absolute;
+            filter: blur(120px);
+            opacity: 0.15;
+            border-radius: 50%;
+            animation: float 20s infinite alternate ease-in-out;
+        }
+
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #3b82f6; animation-delay: 0s; }
+        .blob-2 { top: 40%; right: -20%; width: 60vw; height: 60vw; background: #8b5cf6; animation-delay: -5s; }
+        .blob-3 { bottom: -20%; left: 20%; width: 55vw; height: 55vw; background: #ec4899; animation-delay: -10s; }
+        .blob-4 { top: 20%; left: 40%; width: 40vw; height: 40vw; background: #06b6d4; animation-delay: -15s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* Top Navigation Bar */
+        .navbar {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        
+        .nav-brand-icon {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(255,255,255,0.3);
+        }
+
+        .nav-brand-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* ── Glass Components ── */
+        .glass-panel {
+            background: var(--bg-glass);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: var(--shadow-glass);
+        }
+
+        /* ── Header Area ── */
+        .page-header {
+            display: flex;
+            align-items: stretch;
+            gap: 24px;
+            margin-bottom: 32px;
+            animation: fadeSlideDown 0.5s ease-out;
+        }
+
+        .distro-art-card {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 250px;
+        }
+
+        .distro-logo-box {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            line-height: 1.3;
+            white-space: pre;
+            color: var(--text-primary);
+            text-align: center;
+            font-weight: 600;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .summary-card {
+            flex: 1;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .summary-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .distro-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 99px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            border-color: var(--border-hover);
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-1px);
+        }
+
+        .btn.active {
+            background: rgba(74, 222, 128, 0.2);
+            border-color: rgba(74, 222, 128, 0.5);
+            color: #fff;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--ok);
+            animation: blink 2s ease-in-out infinite;
+            box-shadow: 0 0 8px var(--ok);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ── Grid layout ── */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .grid-full {
+            grid-column: 1 / -1;
+        }
+
+        /* ── Cards ── */
+        .card {
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: fadeSlideUp 0.6s ease-out both;
+        }
+
+        .card:hover {
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.15s; }
+        .card:nth-child(4) { animation-delay: 0.2s; }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.1);
+        }
+
+        .card-header h2 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card-body {
+            padding: 20px 24px;
+        }
+
+        /* ── Info rows ── */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .info-value.ok { color: var(--ok); text-shadow: 0 0 8px rgba(74,222,128,0.4); }
+        .info-value.warn { color: var(--warn); text-shadow: 0 0 8px rgba(253,224,71,0.4); }
+        .info-value.error { color: var(--error); text-shadow: 0 0 8px rgba(248,113,113,0.4); }
+        .info-value.accent { color: var(--highlight); text-shadow: 0 0 8px rgba(96,165,250,0.4); }
+
+        /* ── Progress bars ── */
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 99px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 1s ease-out;
+            background: var(--highlight);
+            box-shadow: 0 0 10px var(--highlight);
+        }
+
+        .progress-ok .progress-fill { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+        .progress-warn .progress-fill { background: var(--warn); box-shadow: 0 0 10px var(--warn); }
+        .progress-error .progress-fill { background: var(--error); box-shadow: 0 0 10px var(--error); }
+
+        .progress-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            min-width: 55px;
+            text-align: right;
+            font-weight: 500;
+        }
+
+        /* ── Tags / Badges ── */
+        .tag {
+            display: inline-flex;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 2px 4px 2px 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .tag-ok {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--ok);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            text-shadow: 0 0 5px rgba(74,222,128,0.5);
+        }
+
+        .tag-accent {
+            background: rgba(96, 165, 250, 0.15);
+            color: var(--highlight);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            text-shadow: 0 0 5px rgba(96,165,250,0.5);
+        }
+
+        .tag-warn {
+            background: rgba(253, 224, 71, 0.15);
+            color: var(--warn);
+            border: 1px solid rgba(253, 224, 71, 0.3);
+        }
+
+        .tag-dim {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        /* ── Live nodes list ── */
+        .live-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .live-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 0.85rem;
+            font-family: 'JetBrains Mono', monospace;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-primary);
+        }
+
+        .live-list li:last-child { border-bottom: none; }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--ok);
+            flex-shrink: 0;
+            box-shadow: 0 0 8px var(--ok);
+        }
+
+        .topic-dot { background: var(--highlight); box-shadow: 0 0 8px var(--highlight); }
+
+        /* ── Blog entries ── */
+        .blog-entry {
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.2s;
+        }
+
+        .blog-entry:last-child { border-bottom: none; }
+
+        .blog-entry:hover {
+            transform: translateX(4px);
+        }
+
+        .blog-entry a {
+            color: #93c5fd;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: color 0.2s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .blog-entry a:hover { color: #bfdbfe; }
+
+        .blog-meta {
+            display: flex;
+            gap: 16px;
+            margin-top: 6px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+
+        .blog-summary {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* ── Workspace ── */
+        .ws-item {
+            padding: 16px;
+            background: rgba(0,0,0,0.15);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .ws-path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ws-stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Loading / empty states ── */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            gap: 12px;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            font-weight: 500;
+            background: rgba(0,0,0,0.1);
+            border-radius: 12px;
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        /* ── Footer ── */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            margin-top: 32px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .footer-logo {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; }
+            .distro-art-card { min-height: 150px; }
+            .main-ascii-banner { font-size: 0.5rem; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+
+        .tags-wrap { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+        
+        .interactive-banner {
+            text-align: center;
+            padding: 60px 24px;
+            margin-bottom: 32px;
+            border-radius: 24px;
+            background: var(--bg-glass);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-glass);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+
+        .interactive-banner:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            border-color: var(--border-hover);
+        }
+
+        .banner-glow {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 150%; height: 150%;
+            background: radial-gradient(circle, rgba(96,165,250,0.12) 0%, transparent 60%);
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .interactive-banner:hover .banner-glow {
+            opacity: 1;
+        }
+
+        .banner-title {
+            font-size: clamp(3rem, 6vw, 5.5rem);
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.03em;
+            background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6, #60a5fa);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: shine 5s linear infinite;
+            position: relative;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        .banner-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+            font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+            margin-top: 12px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mesh Background -->
+    <div class="mesh-bg">
+        <div class="mesh-blob blob-1"></div>
+        <div class="mesh-blob blob-2"></div>
+        <div class="mesh-blob blob-3"></div>
+        <div class="mesh-blob blob-4"></div>
+    </div>
+    <!-- Fixed Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-brand">
+                <span class="nav-brand-icon">⊙</span>
+                <span class="nav-brand-text">ROS2 <span style="font-weight: 400;">Info</span></span>
+            </a>
+            <div class="nav-controls">
+                <button class="btn" id="refresh-btn" onclick="refresh()">↻ Refresh</button>
+                <button class="btn" id="auto-btn" onclick="toggleAutoRefresh()">
+                    <span class="status-dot" id="auto-dot" style="display:none;"></span>
+                    Auto Refresh
+                </button>
+                <a href="https://docs.ros.org/" target="_blank" class="btn">Docs ↗</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Interactive CSS Banner -->
+        <div class="interactive-banner" id="interactive-banner">
+            <div class="banner-glow" id="banner-glow"></div>
+            <h1 class="banner-title">ROS2 INFO</h1>
+            <p class="banner-subtitle">⬡ The fastfetch you always wanted ⬡</p>
+        </div>
+
+        <!-- Dashboard Header -->
+        <div class="page-header">
+            <!-- Distro Art -->
+            <div class="distro-art-card glass-panel">
+                <div class="distro-logo-box" id="distro-logo-box">Loading Logo...</div>
+            </div>
+
+            <!-- Summary Core -->
+            <div class="summary-card glass-panel">
+                <div class="summary-header">
+                    <div class="summary-title" id="hostname">System Overview</div>
+                    <div class="distro-badge" id="distro-badge">
+                        <span id="distro-name">⏳ Detecting...</span>
+                    </div>
+                </div>
+                <div id="quick-stats" style="display: flex; flex-direction: column; gap: 12px; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">
+                    <!-- Quick stats injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="grid">
+            <!-- ROS2 Environment -->
+            <div class="card glass-panel" id="ros2-card">
+                <div class="card-header">
+                    <h2>⚙️ ROS2 Environment</h2>
+                </div>
+                <div class="card-body" id="ros2-body">
+                    <div class="loading">
+                        <div class="spinner"></div> Collecting environment details...
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Info -->
+            <div class="card glass-panel" id="system-card">
+                <div class="card-header">
+                    <h2>💻 Infrastructure</h2>
+                </div>
+                <div class="card-body" id="system-body">
+                    <div class="loading">
+                        <div class="spinner"></div> Collecting system metrics...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Runtime -->
+            <div class="card glass-panel" id="live-card">
+                <div class="card-header">
+                    <h2>📡 Live Runtime</h2>
+                    <span class="tag tag-ok" id="live-status" style="display:none;">● Active</span>
+                </div>
+                <div class="card-body" id="live-body">
+                    <div class="loading">
+                        <div class="spinner"></div> Querying active nodes...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workspaces -->
+            <div class="card glass-panel" id="workspace-card">
+                <div class="card-header">
+                    <h2>📁 Workspaces</h2>
+                </div>
+                <div class="card-body" id="workspace-body">
+                    <div class="loading">
+                        <div class="spinner"></div> Scanning filesystem...
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROS2 Blog Feed -->
+            <div class="card glass-panel grid-full" id="blog-card">
+                <div class="card-header">
+                    <h2>📰 Official Community Blog</h2>
+                    <a href="https://planet.ros.org" target="_blank" class="btn"
+                        style="font-size:0.8rem;padding:6px 14px;">Planet ROS Directory →</a>
+                </div>
+                <div class="card-body" id="blog-body">
+                    <div class="loading">
+                        <div class="spinner"></div> Fetching latest updates...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer" id="footer">
+            <span class="footer-logo">ROS2 Info</span> • Last refreshed: never
+        </div>
+    </div>
+
+    <script>
+        let autoRefreshInterval = null;
+        let autoRefreshOn = false;
+
+        // ── Helpers ──
+        function infoRow(label, value, cls = '') {
+            return `<div class="info-row">
+                <span class="info-label">${label}</span>
+                <span class="info-value ${cls}">${value}</span>
+            </div>`;
+        }
+
+        function progressRow(label, used, total, unit, pct) {
+            let cls = pct >= 90 ? 'progress-error' : pct >= 70 ? 'progress-warn' : '';
+            return `<div class="info-row">
+                <span class="info-label">${label}</span>
+                <div class="progress-container" style="flex:1;max-width:280px;justify-content:flex-end;">
+                    <span class="progress-label" style="margin-right:8px;">${used}/${total} ${unit}</span>
+                    <div class="progress-bar ${cls}" style="max-width: 120px; width: 100%;">
+                        <div class="progress-fill" style="width:${pct}%"></div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        // ── Distro ASCII logos ──
+        const DISTRO_LOGOS = {
+            jazzy: { icon: '♪', art: `   ♪ ♫  ♪ ♫\n ╭──────────────╮\n │ ╦╔═╗╔═╗╔═╗╦ │\n │ ║╠═╣╔═╝╔═╝╚╦╝│\n │╚╝╩ ╩╚═╝╚═╝ ╩ │\n ╰──────────────╯\n   Jazzy Jalisco` },
+            humble: { icon: '🐢', art: `      🐢\n ╦ ╦╦ ╦╔╦╗╔╗ ╦  ╔═╗\n ╠═╣║ ║║║║╠╩╗║  ║╣\n ╩ ╩╚═╝╩ ╩╚═╝╩═╝╚═╝\n  Humble Hawksbill` },
+            iron: { icon: '⚙', art: `      ⚙\n ╦╔═╗╔═╗╔╗╔\n ║╠╦╝║ ║║║║\n ╩╩╚═╚═╝╝╚╝\n  Iron Irwini` },
+            rolling: { icon: '◎', art: `    ◎ ────▶\n ╦═╗╔═╗╦  ╦  ╦╔╗╔╔═╗\n ╠╦╝║ ║║  ║  ║║║║║ ╦\n ╩╚═╚═╝╩═╝╩═╝╩╝╚╝╚═╝\n   Rolling Ridley` },
+            kilted: { icon: '🏴', art: `     🏴\n ╦╔═╦╦  ╔╦╗╔═╗╔╦╗\n ╠╩╗║║   ║ ║╣  ║║\n ╩ ╩╩╩═╝ ╩ ╚═╝═╩╝\n   Kilted Kaiju` },
+            foxy: { icon: '🦊', art: `     🦊\n ╔═╗╔═╗═╗╔╦ ╦\n ╠╣ ║ ║╔╩╦╝╚╦╝\n ╚  ╚═╝╩ ╚═ ╩\n  Foxy Fitzroy` },
+            galactic: { icon: '✦', art: `      ✦\n ╔═╗╔═╗╦  ╔═╗╔═╗╔╦╗╦╔═╗\n ║ ╦╠═╣║  ╠═╣║   ║ ║║\n ╚═╝╩ ╩╩═╝╩ ╩╚═╝ ╩ ╩╚═╝\n   Galactic Geochelone` },
+        };
+
+        const GENERIC_LOGO = { icon: '⊙', art: ` ██████╗  ██████╗ ███████╗\n ██╔══██╗██╔═══██╗██╔════╝\n ██████╔╝██║   ██║███████╗\n ██╔══██╗██║   ██║╚════██║\n ██║  ██║╚██████╔╝███████║\n ╚═╝  ╚═╝ ╚═════╝ ╚══════╝\n        ROS2` };
+
+        function updateDistroLogo(distro) {
+            const d = (distro || '').toLowerCase();
+            const logo = DISTRO_LOGOS[d] || GENERIC_LOGO;
+            document.getElementById('distro-logo-box').textContent = logo.art;
+        }
+
+        // ── Render ROS2 ──
+        function renderROS2(ros) {
+            let html = '';
+            const di = ros.distro_info || {};
+            const distro = ros.distro || 'Unknown';
+
+            // Update header logo and badge
+            updateDistroLogo(distro);
+            const logo = DISTRO_LOGOS[(distro || '').toLowerCase()] || GENERIC_LOGO;
+            document.getElementById('distro-name').textContent =
+                di.full ? `${logo.icon} ${di.full}` : `${logo.icon} ROS2 ${distro}`;
+
+            if (di.lts) {
+                document.getElementById('distro-badge').innerHTML =
+                    `${logo.icon} ${di.full} <span class="tag tag-ok" style="margin-left:8px; border:none; background:rgba(16,185,129,0.15)">LTS</span>`;
+            }
+
+            html += infoRow('ROS2 Distro', di.full || distro, 'accent');
+            html += infoRow('DDS Middleware', ros.dds || 'Default');
+            html += infoRow('Domain ID', ros.domain_id || '0(default)');
+
+            if (ros.workspace_source) {
+                html += infoRow('Active Workspace', ros.workspace_source);
+            }
+
+            const pkg = ros.packages || {};
+            if (pkg.total) {
+                html += infoRow('Packages Installed', pkg.total, 'accent');
+                const cats = pkg.categories || {};
+                const catKeys = Object.keys(cats);
+                if (catKeys.length) {
+                    let tags = catKeys.slice(0, 6).map(c =>
+                        `<span class="tag tag-dim">${c}</span>`
+                    ).join('');
+                    html += `<div class="info-row">
+                        <span class="info-label">Categories</span>
+                        <div class="tags-wrap">${tags}</div>
+                    </div>`;
+                }
+            }
+
+            if (ros.last_updated) {
+                html += infoRow('Last Platform Update', ros.last_updated);
+            }
+
+            if (ros.updates) {
+                const isOk = ros.updates.toLowerCase().includes('up to date');
+                html += infoRow('Apt Status',
+                    (isOk ? '✓ ' : '⚠ ') + ros.updates,
+                    isOk ? 'ok' : 'warn');
+            }
+
+            // Support status / EOL
+            if (di.eol && di.eol !== 'Unknown') {
+                let eolCls = 'ok';
+                let eolTxt = `Supported until ${di.eol}`;
+                if (di.eol === 'N/A') {
+                    eolTxt = 'Rolling (No EOL)';
+                    eolCls = 'accent';
+                } else {
+                    try {
+                        const eolDate = new Date(di.eol + '-01');
+                        if (eolDate < new Date()) {
+                            eolTxt = `EOL: ${di.eol} ⚠ EXPIRED`;
+                            eolCls = 'error';
+                        } else {
+                            const days = Math.ceil((eolDate - new Date()) / 86400000);
+                            if (days < 180) {
+                                eolTxt = `EOL: ${di.eol} (Expiring Soon)`;
+                                eolCls = 'warn';
+                            }
+                        }
+                    } catch (e) { }
+                }
+                html += infoRow('Support Lifecycle', eolTxt, eolCls);
+            }
+
+            document.getElementById('ros2-body').innerHTML = html;
+        }
+
+        // ── Render System ──
+        function renderSystem(sys) {
+            let html = '';
+            const osi = sys.os || {};
+            let osStr = `${osi.name || ''} ${osi.version || ''}`.trim();
+            if (osi.codename) osStr += ` (${osi.codename})`;
+
+            document.getElementById('hostname').innerHTML = `<span style="font-family:'JetBrains Mono',monospace;">user@${sys.hostname || 'unknown'}</span>`;
+
+            html += infoRow('Operating System', osStr);
+            html += infoRow('Kernel Version', osi.kernel || 'Unknown');
+            html += infoRow('Architecture', osi.arch || 'Unknown');
+            html += infoRow('System Uptime', sys.uptime || 'Unknown');
+            html += infoRow('Terminal Shell', sys.shell || 'Unknown');
+            html += infoRow('Python Interpreter', sys.python || 'Unknown');
+
+            const cpu = sys.cpu || {};
+            if (cpu.model) {
+                let model = cpu.model;
+                if (model.length > 35) model = model.substring(0, 32) + '...';
+                html += infoRow('Processor (CPU)', `${model} (${cpu.cores}C/${cpu.threads}T)`);
+            }
+
+            if (sys.gpu) html += infoRow('Graphics (GPU)', sys.gpu);
+
+            const mem = sys.memory || {};
+            if (mem.total_gb) {
+                html += progressRow('Memory (RAM)', mem.used_gb, mem.total_gb, 'GB', mem.percent);
+            }
+
+            const disk = sys.disk || {};
+            if (disk.total_gb) {
+                html += progressRow('Storage (Disk)', disk.used_gb, disk.total_gb, 'GB', disk.percent);
+            }
+
+            document.getElementById('system-body').innerHTML = html;
+
+            // Populate quick stats in header
+            document.getElementById('quick-stats').innerHTML = `
+                <div style="display:flex; gap: 24px;">
+                    <div><span style="color:var(--text-dim);font-size:0.8rem;">OS:</span> <br><span style="font-weight:600;font-size:0.9rem;">${osStr}</span></div>
+                    <div><span style="color:var(--text-dim);font-size:0.8rem;">Uptime:</span> <br><span style="font-weight:600;font-size:0.9rem;">${sys.uptime || ''}</span></div>
+                    <div><span style="color:var(--text-dim);font-size:0.8rem;">Memory:</span> <br><span style="font-weight:600;font-size:0.9rem;color:${mem.percent > 80 ? 'var(--error)' : 'inherit'}">${mem.used_gb || 0} GB Used</span></div>
+                </div>
+            `;
+        }
+
+        // ── Render Live ──
+        function renderLive(ros) {
+            const nodes = ros.nodes || [];
+            const topics = ros.topics || [];
+            const services = (ros.services || []).filter(s => !s.includes('parameter'));
+            const actions = ros.actions || [];
+
+            if (!nodes.length && !topics.length) {
+                document.getElementById('live-body').innerHTML =
+                    '<div class="empty-state">No active ROS2 runtime detected.<br>Start a node to see live telemetry data.</div>';
+                document.getElementById('live-status').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('live-status').style.display = 'inline-flex';
+            let html = '';
+
+            // Nodes
+            html += `<div class="info-row"><span class="info-label">Active Nodes</span>
+                     <span class="info-value accent">${nodes.length}</span></div>`;
+            if (nodes.length) {
+                html += '<ul class="live-list">';
+                nodes.slice(0, 8).forEach(n => {
+                    html += `<li><span class="live-dot"></span>${n}</li>`;
+                });
+                if (nodes.length > 8) html += `<li style="color:var(--text-dim)">+ ${nodes.length - 8} more hidden</li>`;
+                html += '</ul>';
+            }
+
+            // Topics
+            html += `<div class="info-row" style="margin-top:16px;">
+                <span class="info-label">Active Topics</span>
+                <span class="info-value accent">${topics.length}</span></div>`;
+            if (topics.length) {
+                html += '<ul class="live-list">';
+                topics.slice(0, 6).forEach(t => {
+                    html += `<li><span class="live-dot topic-dot"></span>
+                             ${t.name} <span style="color:var(--text-dim);font-size:0.75rem;">${t.type}</span></li>`;
+                });
+                if (topics.length > 6) html += `<li style="color:var(--text-dim)">+ ${topics.length - 6} more hidden</li>`;
+                html += '</ul>';
+            }
+
+            // Services summary
+            if (services.length) {
+                html += `<div class="info-row" style="margin-top:16px;">
+                    <span class="info-label">Active Services</span>
+                    <span class="info-value">${services.length}</span></div>`;
+            }
+
+            // Actions summary
+            if (actions.length) {
+                html += `<div class="info-row">
+                    <span class="info-label">Active Actions</span>
+                    <span class="info-value">${actions.length}</span></div>`;
+            }
+
+            document.getElementById('live-body').innerHTML = html;
+        }
+
+        // ── Render Workspace ──
+        function renderWorkspace(ws) {
+            const workspaces = (ws.workspaces || []);
+            if (!workspaces.length) {
+                document.getElementById('workspace-body').innerHTML =
+                    '<div class="empty-state">No colcon workspaces found on filesystem.</div>';
+                return;
+            }
+
+            let html = '';
+            workspaces.forEach(w => {
+                html += `<div class="ws-item">
+                    <div class="ws-path">📁 ${w.path}</div>
+                    <div class="ws-stats">
+                        <span class="tag tag-accent">${w.package_count} local packages</span>
+                        <span class="tag ${w.has_install ? 'tag-ok' : 'tag-warn'}">
+                            ${w.has_install ? '✓ Built' : '⚠ Requires Build'}
+                        </span>
+                        ${w.launches ? `<span class="tag tag-dim">${w.launches} launch files</span>` : ''}
+                    </div>`;
+
+                const pkgs = (w.packages || []).slice(0, 6);
+                if (pkgs.length) {
+                    html += '<div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;">';
+                    pkgs.forEach(p => {
+                        html += `<span class="tag ${p.built ? 'tag-dim' : 'tag-warn'}">${p.name}</span>`;
+                    });
+                    if (w.packages.length > 6) {
+                        html += `<span class="tag tag-dim">+${w.packages.length - 6} more</span>`;
+                    }
+                    html += '</div>';
+                }
+                html += '</div>';
+            });
+
+            document.getElementById('workspace-body').innerHTML = html;
+        }
+
+        // ── Render Blog ──
+        function renderBlog(entries) {
+            if (!entries || !entries.length) {
+                document.getElementById('blog-body').innerHTML =
+                    '<div class="empty-state">Could not fetch blog feed. Check your internet connection.</div>';
+                return;
+            }
+
+            let html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:24px;">';
+            entries.forEach(e => {
+                html += `<div class="blog-entry">
+                    <a href="${e.link}" target="_blank">${e.title}</a>
+                    <div class="blog-meta">
+                        ${e.date ? `<span>📅 ${new Date(e.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>` : ''}
+                        ${e.source ? `<span>🔗 ${e.source}</span>` : ''}
+                    </div>
+                    ${e.summary ? `<div class="blog-summary">${e.summary}</div>` : ''}
+                </div>`;
+            });
+            html += '</div>';
+
+            document.getElementById('blog-body').innerHTML = html;
+        }
+
+        // ── Data fetching ──
+        async function fetchInfo() {
+            try {
+                const res = await fetch('/api/info');
+                const data = await res.json();
+                renderROS2(data.ros2 || {});
+                renderSystem(data.system || {});
+                renderLive(data.ros2 || {});
+                renderWorkspace(data.workspace || {});
+            } catch (e) {
+                console.error('Failed to fetch info:', e);
+            }
+        }
+
+        async function fetchBlog() {
+            try {
+                const res = await fetch('/api/blog');
+                const entries = await res.json();
+                renderBlog(entries);
+            } catch (e) {
+                document.getElementById('blog-body').innerHTML =
+                    '<div class="empty-state">Failed to load blog feed.</div>';
+            }
+        }
+
+        async function refresh() {
+            const btn = document.getElementById('refresh-btn');
+            btn.innerHTML = '<span class="spinner" style="width:12px;height:12px;border-width:2px;display:inline-block;margin-right:6px;"></span> Refreshing';
+
+            await Promise.all([fetchInfo(), fetchBlog()]);
+
+            btn.innerHTML = '↻ Refresh';
+            document.getElementById('footer').innerHTML =
+                `<span class="footer-logo">ROS2 Info</span> • Last refreshed: ${new Date().toLocaleTimeString()}`;
+        }
+
+        function toggleAutoRefresh() {
+            autoRefreshOn = !autoRefreshOn;
+            const btn = document.getElementById('auto-btn');
+            const dot = document.getElementById('auto-dot');
+            if (autoRefreshOn) {
+                btn.classList.add('active');
+                dot.style.display = 'inline-block';
+                autoRefreshInterval = setInterval(fetchInfo, 5000); // Only refresh info, not blog
+            } else {
+                btn.classList.remove('active');
+                dot.style.display = 'none';
+                clearInterval(autoRefreshInterval);
+            }
+        }
+
+        // ── Initial load ──
+        refresh();
+    </script>
+</body>
+
+</html>

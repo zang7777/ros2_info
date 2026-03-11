@@ -7,7 +7,7 @@
         ║    ██╔══██╗██║   ██║╚════██║    ██╔═══╝     ██╔╝  ██║╚██╗██║██╔══╝  ██║   ██║
         ║    ██║  ██║╚██████╔╝███████║    ███████╗    ██╔╝  ██║ ╚████║██║     ╚██████╔╝
         ║    ╚═╝  ╚═╝ ╚═════╝ ╚══════╝    ╚══════╝    ╚═╝    ╚═╝  ╚═══╝╚═╝      ╚═════╝ 
-        ║            ~"Created by roboticists, for roboticists   ║                                                                             ║
+        ║            ~"Created by roboticists, for roboticists   ║                    ║
         ║           ⬡  The fastfetch you always wanted — for ROS2  ⬡                 ║
         ╚═════════════════════════════════════════════════════════════════════===═════╝
 
@@ -66,6 +66,26 @@ Interactive TUI: A built-in terminal user interface powered by click and rich to
 Elegant, Light-Themed Web UI: A modern dashboard that live-updates your system and ROS2 stats.
 
 Community Integration: Seamlessly embeds the official ROS2 community blog for news and updates.
+## ⬡ Screenshots
+
+<div align="center">
+
+<!-- Screenshot 1 — main dashboard -->
+<img src="https://github.com/zang7777/ros2_info/blob/main/Screenshot%20from%202026-03-11%2011-41-01.png" width="800"/>
+
+<br/>
+
+<!-- Screenshot 2 — live nodes/topics -->
+<img src="https://github.com/zang7777/ros2_info/blob/main/Screenshot%20from%202026-03-11%2011-41-29.png" width="800"/>
+
+<br/>
+
+<!-- Screenshot 3 — theme or web dashboard -->
+<img src="https://github.com/zang7777/ros2_info/blob/main/Screenshot%20from%202026-03-11%2011-41-57.png" width="800"/>
+
+</div>
+
+
 
 ### 🚀 How to Use
 
@@ -83,7 +103,7 @@ Keep the terminal open and automatically refresh the runtime stats (nodes/topics
 ros2 run ros2_info ros2_info --watch 2
 ```
 
-### 3. Interactive Menu
+### 3. Interactive Menu(BEST RECOMMENDED)
 Don't want to type flags? Open the interactive terminal UI to browse your system:
 ```bash
 ros2 run ros2_info ros2_info --interactive

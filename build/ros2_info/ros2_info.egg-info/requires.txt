@@ -1,4 +1,0 @@
-click
-rich
-psutil
-flask

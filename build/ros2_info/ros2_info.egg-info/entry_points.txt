@@ -1,2 +1,0 @@
-[console_scripts]
-ros2_info = fetch_info.cli:main
